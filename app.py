@@ -35,38 +35,63 @@ def get_products_collection_documents(db):
 
 # Function to load data (replace this with your actual data loading method)
 def load_data():
+    st.write("Starting load_data function")
     
-    # Initialize the Firebase app with a service account
-    # Get the Firebase credentials from Streamlit secrets
-    firebase_creds = json.loads(st.secrets["firebase"]["credentials"])
-    cred = credentials.Certificate(firebase_creds)
-    initialize_app(cred)
-    # Initialize Firestore DB
-    db = firestore.client()
-    # Get all documents from the 'products' collection and their subcollections
-    products_collection_data = get_products_collection_documents(db)
-    payment_df = pd.DataFrame()
-    bulkAdding_df = pd.DataFrame()
-    for order_id in products_collection_data['momOrders2024']:
-        if 'momHistory2024' in order_id.keys():
-            for history in order_id['momHistory2024']:
-                lineUid= history['lineUid']
-                billDate = history['payment']['billDate']
-                status = history['payment']['status']
-                product_df = pd.DataFrame()
-                history_df = pd.DataFrame([history['payment']])
-                for product in history['bulkAdding']:
-                    product_ = pd.DataFrame([product])
-                    product_['lineUid'] = lineUid
-                    product_['billDate'] = billDate
-                    product_['status'] = status
-                    bulkAdding_df = pd.concat([bulkAdding_df,product_], ignore_index=True)
-                payment_ =pd.DataFrame([history['payment']])
-                payment_['lineUid'] = lineUid
-                payment_df = pd.concat([payment_df,payment_], ignore_index=True)
+    # Check if the app is already initialized
+    try:
+        app = get_app()
+        st.write("Firebase app already initialized.")
+    except ValueError:
+        st.write("Initializing Firebase app")
+        try:
+            firebase_creds_raw = st.secrets["firebase"]["credentials"]
+            firebase_creds = json.loads(firebase_creds_raw)
+            cred = credentials.Certificate(firebase_creds)
+            initialize_app(cred)
+            st.write("Firebase app initialized successfully")
+        except Exception as e:
+            st.error(f"Error initializing Firebase app: {str(e)}")
+            return pd.DataFrame(), pd.DataFrame()
 
-    return payment_df, bulkAdding_df
+    try:
+        db = firestore.client()
+        st.write("Firestore client created")
+    except Exception as e:
+        st.error(f"Error creating Firestore client: {str(e)}")
+        return pd.DataFrame(), pd.DataFrame()
 
+    try:
+        # Get all documents from the 'products' collection and their subcollections
+        products_collection_data = get_products_collection_documents(db)
+        
+        payment_df = pd.DataFrame()
+        bulkAdding_df = pd.DataFrame()
+        
+        for order_id in products_collection_data['momOrders2024']:
+            if 'momHistory2024' in order_id.keys():
+                for history in order_id['momHistory2024']:
+                    lineUid = history['lineUid']
+                    billDate = history['payment']['billDate']
+                    status = history['payment']['status']
+                    
+                    for product in history['bulkAdding']:
+                        product_ = pd.DataFrame([product])
+                        product_['lineUid'] = lineUid
+                        product_['billDate'] = billDate
+                        product_['status'] = status
+                        bulkAdding_df = pd.concat([bulkAdding_df, product_], ignore_index=True)
+                    
+                    payment_ = pd.DataFrame([history['payment']])
+                    payment_['lineUid'] = lineUid
+                    payment_df = pd.concat([payment_df, payment_], ignore_index=True)
+        
+        st.write(f"Loaded {len(payment_df)} payment records and {len(bulkAdding_df)} product records")
+        return payment_df, bulkAdding_df
+    
+    except Exception as e:
+        st.error(f"Error loading data: {str(e)}")
+        return pd.DataFrame(), pd.DataFrame()
+        
 def main():
     st.title("Sales Dashboard")
 
