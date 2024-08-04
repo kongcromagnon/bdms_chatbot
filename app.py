@@ -77,11 +77,28 @@ def main():
     payment_df['billDate'] = pd.to_datetime(payment_df['billDate'], format='%d-%m-%Y %H:%M:%S')
     bulkAdding_df['billDate'] = pd.to_datetime(bulkAdding_df['billDate'], format='%d-%m-%Y %H:%M:%S')
 
-    # 1. Total sale amount (only status = success)
+    # 1. Total sale amount and commission (only status = success)
     successful_sales = payment_df[payment_df['status'] == 'success']
     total_sales = successful_sales['amount'].sum()
-    st.header("1. Total Sales Amount")
-    st.metric("Total Sales (Successful)", f"฿{total_sales:,.2f}")
+    total_commission = total_sales * 0.05  # 5% commission
+
+    st.header("1. Total Sales Amount and Commission")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Total Sales (Successful)", f"฿{total_sales:,.2f}")
+    with col2:
+        st.metric("Total Commission (5%)", f"฿{total_commission:,.2f}")
+
+    # New: Line chart for daily sales amount
+    st.header("Daily Sales Amount")
+    daily_sales = successful_sales.groupby(successful_sales['billDate'].dt.date)['amount'].sum().reset_index()
+    daily_sales.columns = ['Date', 'Sales Amount']
+
+    fig_line = px.line(daily_sales, x='Date', y='Sales Amount',
+                       title='Daily Sales Amount (Successful Transactions)',
+                       labels={'Sales Amount': 'Sales Amount (฿)'})
+    fig_line.update_xaxes(rangeslider_visible=True)
+    st.plotly_chart(fig_line)
 
     # 2. Time to buy in heatmap x = Day (mon-sun) y = Time
     st.header("2. Purchase Time Heatmap")
