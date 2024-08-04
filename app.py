@@ -35,12 +35,12 @@ def get_products_collection_documents(db):
 
 # Function to load data (replace this with your actual data loading method)
 def load_data():
-    
-    # Initialize the Firebase app with a service account
-    # Get the Firebase credentials from Streamlit secrets
-    firebase_creds = json.loads(st.secrets["firebase"]["credentials"])
-    cred = credentials.Certificate(firebase_creds)
-    initialize_app(cred)
+    if not firebase_admin._apps:
+        # Initialize the Firebase app with a service account
+        # Get the Firebase credentials from Streamlit secrets
+        firebase_creds = json.loads(st.secrets["firebase"]["credentials"])
+        cred = credentials.Certificate(firebase_creds)
+        initialize_app(cred)
     # Initialize Firestore DB
     db = firestore.client()
     # Get all documents from the 'products' collection and their subcollections
