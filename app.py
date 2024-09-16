@@ -28,7 +28,7 @@ def get_documents_recursive(collection_ref):
     return all_data
 
 def get_products_collection_documents(db):
-    collection_name = 'momOrders2024'
+    collection_name = 'cancerOrders2024'
     products_collection_ref = db.collection(collection_name)
     products_data = get_documents_recursive(products_collection_ref)
     return {collection_name: products_data}
@@ -47,9 +47,9 @@ def load_data():
     products_collection_data = get_products_collection_documents(db)
     payment_df = pd.DataFrame()
     bulkAdding_df = pd.DataFrame()
-    for order_id in products_collection_data['momOrders2024']:
-        if 'momHistory2024' in order_id.keys():
-            for history in order_id['momHistory2024']:
+    for order_id in products_collection_data['cancerOrders2024']:
+        if 'cancerHistory2024' in order_id.keys():
+            for history in order_id['cancerHistory2024']:
                 lineUid= history['lineUid']
                 billDate = history['payment']['billDate']
                 status = history['payment']['status']
