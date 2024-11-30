@@ -48,7 +48,7 @@ def load_data():
     payment_df = pd.DataFrame()
     bulkAdding_df = pd.DataFrame()
     for order_id in products_collection_data['fatherOrders2024']:
-        if 'cancerHistory2024' in order_id.keys():
+        if 'fatherHistory2024' in order_id.keys():
             for history in order_id['fatherHistory2024']:
                 lineUid= history['lineUid']
                 billDate = history['payment']['billDate']
