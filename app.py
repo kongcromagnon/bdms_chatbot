@@ -50,20 +50,23 @@ def load_data():
     for order_id in products_collection_data['MomOrders2025']:
         if 'MomHistory2025' in order_id.keys():
             for history in order_id['MomHistory2025']:
-                lineUid= history['lineUid']
-                billDate = history['payment']['billDate']
-                status = history['payment']['status']
-                product_df = pd.DataFrame()
-                history_df = pd.DataFrame([history['payment']])
-                for product in history['bulkAdding']:
-                    product_ = pd.DataFrame([product])
-                    product_['lineUid'] = lineUid
-                    product_['billDate'] = billDate
-                    product_['status'] = status
-                    bulkAdding_df = pd.concat([bulkAdding_df,product_], ignore_index=True)
-                payment_ =pd.DataFrame([history['payment']])
-                payment_['lineUid'] = lineUid
-                payment_df = pd.concat([payment_df,payment_], ignore_index=True)
+                try:
+                    lineUid= history['lineUid']
+                    billDate = history['payment']['billDate']
+                    status = history['payment']['status']
+                    product_df = pd.DataFrame()
+                    history_df = pd.DataFrame([history['payment']])
+                    for product in history['bulkAdding']:
+                        product_ = pd.DataFrame([product])
+                        product_['lineUid'] = lineUid
+                        product_['billDate'] = billDate
+                        product_['status'] = status
+                        bulkAdding_df = pd.concat([bulkAdding_df,product_], ignore_index=True)
+                    payment_ =pd.DataFrame([history['payment']])
+                    payment_['lineUid'] = lineUid
+                    payment_df = pd.concat([payment_df,payment_], ignore_index=True)
+                except:
+                    pass
 
     return payment_df, bulkAdding_df
     
@@ -135,3 +138,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
