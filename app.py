@@ -28,7 +28,7 @@ def get_documents_recursive(collection_ref):
     return all_data
 
 def get_products_collection_documents(db):
-    collection_name = 'FatherOrders2025'
+    collection_name = 'FamilyOrders2026'
     products_collection_ref = db.collection(collection_name)
     products_data = get_documents_recursive(products_collection_ref)
     return {collection_name: products_data}
