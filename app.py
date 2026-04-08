@@ -47,7 +47,7 @@ def load_data():
     products_collection_data = get_products_collection_documents(db)
     payment_df = pd.DataFrame()
     bulkAdding_df = pd.DataFrame()
-    for order_id in products_collection_data['FamilyHistory2026']:
+    for order_id in products_collection_data['FamilyOrders2026']:
         if 'FamilyHistory2026' in order_id.keys():
             for history in order_id['FamilyHistory2026']:
                 try:
